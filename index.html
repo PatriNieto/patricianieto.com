@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PATRICIA NIETO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Poppins:wght@300;400;700;900&family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    body, html { 
+      margin: 0; 
+      height: 100%; 
+      overflow: hidden; 
+    }
+    canvas { 
+      display: block; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    
+    #nameDisplay {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      font-family: 'Inter', 'Poppins', 'Montserrat', sans-serif;
+      font-weight: 900;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+      text-shadow: 
+        0 0 10px rgba(0,255,0,0.5),
+        0 0 20px rgba(0,255,0,0.3),
+        2px 2px 4px rgba(0,0,0,0.8);
+      pointer-events: none;
+      color: white;
+      letter-spacing: 0.1em;
+      /* Efecto de resplandor */
+      filter: drop-shadow(0 0 15px rgba(0,255,0,0.4));
+    }
+    
+    /* Orientación vertical (portrait) - Nombre corto para ajustar */
+    @media (orientation: portrait) {
+      #nameDisplay {
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        line-height: 1.2;
+      }
+      #nameDisplay::before {
+        content: 'PATRI\ANIETO';
+        white-space: pre-line;
+      }
+    }
+    
+    /* Orientación horizontal (landscape) - Nombre completo en una línea */
+    @media (orientation: landscape) {
+      #nameDisplay {
+        font-size: clamp(3rem, 6vw, 6rem);
+        line-height: 1;
+      }
+      #nameDisplay::before {
+        content: 'PATRICIA NIETO';
+      }
+    }
+    
+    /* Ajustes para pantallas muy pequeñas */
+    @media (max-width: 480px) and (orientation: portrait) {
+      #nameDisplay {
+        font-size: clamp(2rem, 7vw, 4rem);
+      }
+    }
+    
+    @media (max-height: 480px) and (orientation: landscape) {
+      #nameDisplay {
+        font-size: clamp(2rem, 5vw, 4rem);
+        top: 25%;
+      }
+    }
+    
+    /* Animación sutil de entrada */
+    @keyframes fadeInGlow {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+        filter: drop-shadow(0 0 0px rgba(0,255,0,0));
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        filter: drop-shadow(0 0 15px rgba(0,255,0,0.4));
+      }
+    }
+    
+    #nameDisplay {
+      animation: fadeInGlow 1s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <h1 id="nameDisplay"></h1>
+
+  <script>
+    // Función para calcular el color opuesto al fondo
+    function updateNameColor() {
+      // Obtenemos una muestra del color del canvas en el centro
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return;
+      
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) return;
+      
+      // Creamos un buffer para leer el pixel del centro
+      const pixels = new Uint8Array(4);
+      const centerX = Math.floor(canvas.width / 2);
+      const centerY = Math.floor(canvas.height / 2);
+      
+      try {
+        gl.readPixels(centerX, centerY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        
+        // Calculamos la luminancia del pixel
+        const luminance = (pixels[0] * 0.299 + pixels[1] * 0.587 + pixels[2] * 0.114) / 255;
+        
+        // Color opuesto: si el fondo es claro, texto oscuro y viceversa
+        const nameElement = document.getElementById('nameDisplay');
+        if (luminance > 0.5) {
+          nameElement.style.color = '#000000'; // Texto negro para fondo claro
+          nameElement.style.textShadow = '2px 2px 4px rgba(255,255,255,0.8)';
+        } else {
+          nameElement.style.color = '#ffffff'; // Texto blanco para fondo oscuro
+          nameElement.style.textShadow = '2px 2px 4px rgba(0,0,0,0.8)';
+        }
+      } catch (e) {
+        // Fallback si no podemos leer los pixels
+        console.log('No se puede leer el canvas, usando color por defecto');
+      }
+    }
+    
+    // Función para detectar cambios de orientación
+    function handleOrientationChange() {
+      // Forzamos un reflow para que CSS detecte el cambio
+      const nameElement = document.getElementById('nameDisplay');
+      nameElement.style.display = 'none';
+      nameElement.offsetHeight; // Trigger reflow
+      nameElement.style.display = 'block';
+    }
+    
+    // Escuchamos cambios de orientación
+    window.addEventListener('orientationchange', function() {
+      setTimeout(handleOrientationChange, 100); // Pequeño delay para que el cambio se complete
+    });
+    
+    // También escuchamos resize por si no hay orientationchange
+    window.addEventListener('resize', handleOrientationChange);
+    
+    // Actualizamos el color del nombre periódicamente
+    setInterval(updateNameColor, 100); // Cada 100ms
+    
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+      handleOrientationChange();
+      setTimeout(updateNameColor, 500); // Delay inicial para que el canvas esté listo
+    });
+  </script>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
