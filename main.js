@@ -4,8 +4,6 @@ let container;
 let camera, scene, renderer, clock;
 let uniforms;
 
-document.documentElement.requestFullscreen();
-
 
 init("shader4.frag"); // Cambia este nombre para probar otros
 
