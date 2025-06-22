@@ -39,7 +39,7 @@ void main() {
     //st.x * PI convierte la coordenada X a radianes
 //* u_time hace que la frecuencia de la onda cambie con el tiempo
 //Resultado: Una onda seno que cambia su frecuencia dinámicamente
-    float y = sin((st.x * PI)*u_time*2.0);
+    float y = sin((st.x * PI)*u_time*st.x);
 
 
 

@@ -4,9 +4,10 @@ let container;
 let camera, scene, renderer, clock;
 let uniforms;
 
+document.documentElement.requestFullscreen();
 
 
-init("shader3.frag"); // Cambia este nombre para probar otros
+init("shader4.frag"); // Cambia este nombre para probar otros
 
 function init(shaderPath) {
   container = document.getElementById("container");
@@ -49,10 +50,36 @@ function init(shaderPath) {
       onWindowResize();
       window.addEventListener("resize", onWindowResize);
 
-      document.onmousemove = function (e) {
-        uniforms.u_mouse.value.x = e.pageX;
-        uniforms.u_mouse.value.y = e.pageY;
-      };
+
+
+    document.onmousemove = function (e) {
+  uniforms.u_mouse.value.x = e.pageX * window.devicePixelRatio;
+  uniforms.u_mouse.value.y = window.innerHeight * window.devicePixelRatio - e.pageY * window.devicePixelRatio;
+};
+
+
+      // Eventos táctiles para móviles
+document.addEventListener("touchmove", function (e) {
+  if (e.touches.length > 0) {
+    const touch = e.touches[0];
+    uniforms.u_mouse.value.x = touch.pageX * window.devicePixelRatio;
+    uniforms.u_mouse.value.y = window.innerHeight * window.devicePixelRatio - touch.pageY * window.devicePixelRatio;
+  }
+}, { passive: true });
+
+document.addEventListener("touchstart", () => {
+  document.documentElement.requestFullscreen().catch(() => {});
+}, { once: true });
+
+
+document.addEventListener("touchstart", function (e) {
+  if (e.touches.length > 0) {
+    const touch = e.touches[0];
+    uniforms.u_mouse.value.x = touch.pageX * window.devicePixelRatio;
+    uniforms.u_mouse.value.y = window.innerHeight * window.devicePixelRatio - touch.pageY * window.devicePixelRatio;
+  }
+}, { passive: true });
+
 
       animate();
     });
